@@ -31,6 +31,7 @@ body{
   color:var(--text);
   background:linear-gradient(180deg,var(--bg1),var(--bg2));
   overflow:auto;
+  padding-bottom:env(safe-area-inset-bottom);
 }
 .app{
   max-width:560px;
@@ -38,67 +39,146 @@ body{
   margin:0 auto;
   padding:calc(8px + var(--safe-top)) 8px calc(8px + var(--safe-bottom));
   display:grid;
-  grid-template-rows:auto auto auto 1fr auto auto; /* keep, but allow scroll if needed */
+  grid-template-rows:auto auto auto 1fr auto auto auto;
   gap:8px;
 }
 .header{
   background:linear-gradient(135deg,var(--blue-deep),var(--pink));
   color:white;
-  border-radius:22px;
-  padding:12px 14px;
+  border-radius:20px;
+  padding:10px 12px;
   box-shadow:var(--shadow);
   position:relative;
-  overflow:auto;
+  overflow:hidden;
 }
 .header:before,.header:after{
-  content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.16);
+  content:"";
+  position:absolute;
+  border-radius:50%;
+  background:rgba(255,255,255,.16);
 }
-.header:before{width:120px;height:120px;right:-30px;top:-40px;}
-.header:after{width:80px;height:80px;left:-20px;bottom:-30px;}
-.title-row{display:flex;justify-content:space-between;align-items:center;gap:10px;position:relative;z-index:1;}
-.title{font-size:22px;font-weight:900;letter-spacing:-.3px;}
+.header:before{width:110px;height:110px;right:-28px;top:-38px;}
+.header:after{width:74px;height:74px;left:-20px;bottom:-28px;}
+.title-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  position:relative;
+  z-index:1;
+}
+.title{font-size:21px;font-weight:900;letter-spacing:-.3px;}
 .badge{
-  background:rgba(255,255,255,.2);padding:6px 10px;border-radius:999px;font-size:12px;font-weight:800;
+  background:rgba(255,255,255,.2);
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  white-space:nowrap;
 }
 .sub{
-  margin-top:6px;font-size:12px;line-height:1.4;opacity:.95;position:relative;z-index:1;
+  margin-top:5px;
+  font-size:12px;
+  line-height:1.35;
+  opacity:.95;
+  position:relative;
+  z-index:1;
+}
+.time-pick{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+}
+.time-btn{
+  min-height:40px;
+  border:none;
+  border-radius:14px;
+  font-size:14px;
+  font-weight:900;
+  background:#eef4ff;
+  color:#3458c8;
+  box-shadow:0 6px 16px rgba(30,41,59,.06);
+}
+.time-btn.active{
+  background:linear-gradient(135deg,var(--blue-deep),var(--blue));
+  color:#fff;
 }
 .stats{
-  display:grid;grid-template-columns:repeat(5,1fr);gap:6px;
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:6px;
 }
 .stat{
-  background:var(--card);border:1px solid var(--line);border-radius:16px;padding:8px 6px;text-align:center;box-shadow:0 6px 16px rgba(30,41,59,.05);
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:7px 5px;
+  text-align:center;
+  box-shadow:0 6px 16px rgba(30,41,59,.05);
 }
-.stat .label{font-size:11px;color:var(--sub);margin-bottom:4px;white-space:nowrap;}
-.stat .value{font-size:18px;font-weight:900;line-height:1;}
+.stat .label{font-size:10px;color:var(--sub);margin-bottom:4px;white-space:nowrap;}
+.stat .value{font-size:17px;font-weight:900;line-height:1;}
 .message{
-  min-height:48px;display:flex;align-items:center;justify-content:center;text-align:center;
-  background:linear-gradient(180deg,#fff,#f9fbff);border:1px solid var(--line);border-radius:16px;padding:10px 12px;
-  font-size:13px;line-height:1.4;color:#345;
+  min-height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  background:linear-gradient(180deg,#fff,#f9fbff);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:8px 10px;
+  font-size:12px;
+  line-height:1.35;
+  color:#345;
 }
 .canvas-wrap{
-  position:relative;min-height:0;border-radius:24px;overflow:auto;box-shadow:0 10px 24px rgba(30,41,59,.08);
+  position:relative;
+  min-height:0;
+  border-radius:22px;
+  overflow:hidden;
+  box-shadow:0 10px 24px rgba(30,41,59,.08);
 }
 canvas{
-  display:block;width:100%;height:100%;
+  display:block;
+  width:100%;
+  height:100%;
   background:
     radial-gradient(circle at center, rgba(108,156,255,.05) 0 2px, transparent 2px 100%),
     linear-gradient(180deg,#ffffff 0%, #f8fbff 100%);
   touch-action:none;
 }
 .overlay-center{
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
 }
 .countdown{
-  font-size:min(26vw,96px);font-weight:1000;color:var(--pink-deep);text-shadow:0 6px 18px rgba(255,105,180,.25);
-  transform:scale(.8);opacity:0;transition:.18s ease;
+  font-size:min(26vw,96px);
+  font-weight:1000;
+  color:var(--pink-deep);
+  text-shadow:0 6px 18px rgba(255,105,180,.25);
+  transform:scale(.8);
+  opacity:0;
+  transition:.18s ease;
 }
 .countdown.show{transform:scale(1);opacity:1;}
 .burst{
-  position:absolute;inset:0;pointer-events:none;overflow:auto;
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
 }
 .particle{
-  position:absolute;width:10px;height:10px;border-radius:50%;opacity:.9;animation:pop .7s ease-out forwards;
+  position:absolute;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  opacity:.9;
+  animation:pop .7s ease-out forwards;
 }
 @keyframes pop{
   0%{transform:translate(0,0) scale(.6);opacity:0;}
@@ -106,26 +186,61 @@ canvas{
   100%{transform:translate(var(--tx),var(--ty)) scale(1.2);opacity:0;}
 }
 .legend{
-  position:absolute;top:8px;left:8px;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none;z-index:2;
+  position:absolute;
+  top:8px;
+  left:8px;
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  pointer-events:none;
+  z-index:2;
 }
 .chip{
-  display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.88);border:1px solid rgba(228,235,246,.95);border-radius:999px;padding:4px 8px;font-size:11px;color:var(--sub);backdrop-filter:blur(4px);
+  display:flex;
+  align-items:center;
+  gap:5px;
+  background:rgba(255,255,255,.88);
+  border:1px solid rgba(228,235,246,.95);
+  border-radius:999px;
+  padding:4px 8px;
+  font-size:11px;
+  color:var(--sub);
+  backdrop-filter:blur(4px);
 }
 .dot{width:10px;height:10px;border-radius:50%;display:inline-block;}
 .dot.target{background:#bdd1ff;border:1px solid #86aafc;}
 .dot.trace{background:var(--blue-deep);}
 .dot.center{background:#ffbe33;}
-.controls{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:6px;}
-button{
-  min-height:50px;border:none;border-radius:16px;font-size:14px;font-weight:900;cursor:pointer;
-  box-shadow:0 6px 16px rgba(30,41,59,.08);
+.controls,
+.extra-controls{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:6px;
 }
-button:active{transform:translateY(1px)}
+button{
+  min-height:42px;
+  border:none;
+  border-radius:14px;
+  font-size:13px;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 4px 10px rgba(30,41,59,.06);
+}
+button:active{transform:translateY(1px);}
 .btn-start{background:linear-gradient(135deg,var(--blue-deep),var(--blue));color:#fff;}
 .btn-guide{background:#eef4ff;color:#3458c8;}
 .btn-clear{background:#fff0f0;color:#c54848;}
+.btn-retry{background:#eefcf7;color:#178b68;}
+.btn-next{background:#fff7df;color:#a06a00;}
+.btn-bgm{background:#f5f0ff;color:#6f46c7;}
+.btn-reset{background:#f8f8f8;color:#5f6470;}
 .ranking{
-  background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:18px;padding:10px 12px;
+  background:rgba(255,255,255,.92);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:9px 10px;
+  max-height:108px;
+  overflow:auto;
 }
 .ranking-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
 .ranking-title{font-size:13px;font-weight:900;}
@@ -135,35 +250,21 @@ button:active{transform:translateY(1px)}
 .rank-item b{display:block;font-size:16px;margin-top:2px;}
 .stars{letter-spacing:1px;color:#f5b700;font-size:17px;min-height:20px;}
 .footer{text-align:center;font-size:11px;color:var(--sub);}
-.mode-pill{font-weight:900;color:#7a4ecf;}
-.flash{
-  animation:flash .45s ease;
-}
+.flash{animation:flash .45s ease;}
 @keyframes flash{0%{transform:scale(1)}40%{transform:scale(1.06)}100%{transform:scale(1)}}
 @media (max-width:390px){
-  .stats{grid-template-columns:repeat(5,1fr)}
-  .stat .value{font-size:16px}
-  .controls{grid-template-columns:1fr 1fr 1fr}
-  button{font-size:13px}
+  .title{font-size:19px;}
+  .stat .value{font-size:15px;}
+  button{font-size:12px;min-height:40px;}
 }
 @media (orientation:landscape) and (max-height:540px){
-  .app{grid-template-rows:auto auto 1fr auto auto;}
+  .app{grid-template-rows:auto auto 1fr auto auto auto;}
   .sub,.message{display:none;}
   .header{padding:8px 10px;}
   .title{font-size:18px;}
   .stat{padding:5px 3px;}
   .stat .value{font-size:14px;}
-  button{min-height:40px;}
-}
-/* iOS/Android safe area tweaks */
-body{padding-bottom: env(safe-area-inset-bottom);}
-.app{padding-bottom: calc(8px + env(safe-area-inset-bottom));}
-  .sub,.message{display:none;}
-  .header{padding:10px 12px;}
-  .title{font-size:20px;}
-  .stat{padding:6px 4px;}
-  .stat .value{font-size:16px;}
-  button{min-height:44px;}
+  button{min-height:38px;}
 }
 </style>
 </head>
@@ -172,9 +273,14 @@ body{padding-bottom: env(safe-area-inset-bottom);}
   <div class="header">
     <div class="title-row">
       <div class="title">🎯 원 그리기 게임 PRO</div>
-      <div class="badge" id="modeBadge">⏱️ 10초 모드</div>
+      <div class="badge" id="modeBadge">⏱️ 5초 모드</div>
     </div>
-    <div class="sub">3초 카운트다운 후 시작됩니다. 원을 최대한 예쁘고 둥글게 그려서 콤보와 별을 모아 보세요!</div>
+    <div class="sub">카운트다운 후 시작됩니다. 원을 최대한 예쁘고 둥글게 그려서 콤보와 별을 모아 보세요!</div>
+  </div>
+
+  <div class="time-pick">
+    <button class="time-btn active" id="time5Btn">5초</button>
+    <button class="time-btn" id="time10Btn">10초</button>
   </div>
 
   <div class="stats">
@@ -182,10 +288,10 @@ body{padding-bottom: env(safe-area-inset-bottom);}
     <div class="stat"><div class="label">최고</div><div class="value" id="bestScore">0</div></div>
     <div class="stat"><div class="label">콤보</div><div class="value" id="combo">0</div></div>
     <div class="stat"><div class="label">레벨</div><div class="value" id="level">1</div></div>
-    <div class="stat"><div class="label">남은 시간</div><div class="value" id="timer">10</div></div>
+    <div class="stat"><div class="label">남은 시간</div><div class="value" id="timer">5</div></div>
   </div>
 
-  <div class="message" id="message">시작 버튼을 누르면 3초 카운트다운 뒤 게임이 시작됩니다.</div>
+  <div class="message" id="message">시작 버튼을 누르면 카운트다운 뒤 게임이 시작됩니다.</div>
 
   <div class="canvas-wrap" id="canvasWrap">
     <div class="legend">
@@ -202,6 +308,18 @@ body{padding-bottom: env(safe-area-inset-bottom);}
     <button class="btn-start" id="startBtn">시작</button>
     <button class="btn-guide" id="guideBtn">기준 원 숨기기</button>
     <button class="btn-clear" id="clearBtn">지우기</button>
+  </div>
+
+  <div class="extra-controls">
+    <button class="btn-retry" id="retryBtn">다시 하기</button>
+    <button class="btn-next" id="nextBtn">다음 레벨</button>
+    <button class="btn-bgm" id="bgmBtn">🔈 BGM OFF</button>
+  </div>
+
+  <div class="extra-controls">
+    <button class="btn-reset" id="resetBtn">초기화</button>
+    <div></div>
+    <div></div>
   </div>
 
   <div class="ranking">
@@ -238,9 +356,17 @@ const starsEl = document.getElementById('stars');
 const rank1El = document.getElementById('rank1');
 const rank2El = document.getElementById('rank2');
 const rank3El = document.getElementById('rank3');
+const modeBadgeEl = document.getElementById('modeBadge');
+
 const startBtn = document.getElementById('startBtn');
 const guideBtn = document.getElementById('guideBtn');
 const clearBtn = document.getElementById('clearBtn');
+const retryBtn = document.getElementById('retryBtn');
+const nextBtn = document.getElementById('nextBtn');
+const bgmBtn = document.getElementById('bgmBtn');
+const resetBtn = document.getElementById('resetBtn');
+const time5Btn = document.getElementById('time5Btn');
+const time10Btn = document.getElementById('time10Btn');
 
 let dpr = Math.max(1, window.devicePixelRatio || 1);
 let target = {cx:0, cy:0, r:0};
@@ -252,26 +378,37 @@ let countdownActive = false;
 let combo = 0;
 let level = Number(localStorage.getItem('circleGameLevel') || 1);
 let bestScore = Number(localStorage.getItem('circleGameBest') || 0);
-let timeLeft = 10;
+let selectedTime = Number(localStorage.getItem('circleGameTime') || 5);
+if (![5,10].includes(selectedTime)) selectedTime = 5;
+let timeLeft = selectedTime;
 let timerId = null;
 let roundEnded = false;
 let ranking = JSON.parse(localStorage.getItem('circleGameRanking') || '[0,0,0]');
+let bgmOn = localStorage.getItem('circleGameBgmOn') === '1';
+let bgmOsc = null;
+let bgmGain = null;
 
 bestScoreEl.textContent = bestScore;
 levelEl.textContent = level;
+comboEl.textContent = combo;
 renderRanking();
+applyTimeUI();
+updateBgmButton();
 
 function fitCanvas(){
   const headerH = document.querySelector('.header').offsetHeight;
+  const timePickH = document.querySelector('.time-pick').offsetHeight;
   const statsH = document.querySelector('.stats').offsetHeight;
   const msgH = document.querySelector('.message').offsetHeight;
   const controlsH = document.querySelector('.controls').offsetHeight;
+  const extra1H = document.querySelectorAll('.extra-controls')[0].offsetHeight;
+  const extra2H = document.querySelectorAll('.extra-controls')[1].offsetHeight;
   const rankingH = document.querySelector('.ranking').offsetHeight;
   const footerH = document.querySelector('.footer').offsetHeight;
-  const totalGaps = 8 * 6;
+  const totalGaps = 8 * 8;
   const vh = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
-  const available = vh - headerH - statsH - msgH - controlsH - rankingH - footerH - totalGaps - 16;
-  canvasWrap.style.height = Math.max(220, available) + 'px';
+  const available = vh - headerH - timePickH - statsH - msgH - controlsH - extra1H - extra2H - rankingH - footerH - totalGaps - 10;
+  canvasWrap.style.height = Math.max(300, available) + 'px';
 
   const rect = canvas.getBoundingClientRect();
   dpr = Math.max(1, window.devicePixelRatio || 1);
@@ -286,7 +423,7 @@ function setupTarget(){
   const rect = canvas.getBoundingClientRect();
   const minSide = Math.min(rect.width, rect.height);
   const difficultyBoost = Math.min(26, (level - 1) * 4);
-  const base = Math.max(54, minSide * 0.24 - difficultyBoost);
+  const base = Math.max(58, minSide * 0.26 - difficultyBoost);
   target.cx = rect.width / 2;
   target.cy = rect.height / 2 + 8;
   target.r = base + (Math.random() * 10 - 5);
@@ -494,7 +631,7 @@ function finishRound(byTimeout = false){
 
 function startTimer(){
   clearInterval(timerId);
-  timeLeft = 10;
+  timeLeft = selectedTime;
   timerEl.textContent = String(timeLeft);
   timerId = setInterval(()=>{
     timeLeft -= 1;
@@ -534,7 +671,8 @@ function beginPlayableRound(){
   setupTarget();
   draw();
   gameActive = true;
-  messageEl.textContent = '지금부터 10초! 원을 한 바퀴 부드럽게 그려 보세요.';
+  messageEl.textContent = `지금부터 ${selectedTime}초! 원을 한 바퀴 부드럽게 그려 보세요.`;
+  modeBadgeEl.textContent = `⏱️ ${selectedTime}초 모드`;
   startTimer();
 }
 
@@ -559,6 +697,67 @@ function clearDrawing(){
 function toggleGuide(){
   showGuide = !showGuide;
   guideBtn.textContent = showGuide ? '기준 원 숨기기' : '기준 원 보기';
+  draw();
+}
+
+function setTimeMode(sec){
+  selectedTime = sec;
+  localStorage.setItem('circleGameTime', String(sec));
+  timeLeft = selectedTime;
+  timerEl.textContent = String(timeLeft);
+  applyTimeUI();
+  messageEl.textContent = `${selectedTime}초 모드로 설정했습니다. 시작 버튼을 눌러 도전하세요.`;
+}
+
+function applyTimeUI(){
+  modeBadgeEl.textContent = `⏱️ ${selectedTime}초 모드`;
+  time5Btn.classList.toggle('active', selectedTime === 5);
+  time10Btn.classList.toggle('active', selectedTime === 10);
+}
+
+function nextLevel(){
+  level += 1;
+  localStorage.setItem('circleGameLevel', String(level));
+  levelEl.textContent = String(level);
+  combo = 0;
+  comboEl.textContent = '0';
+  messageEl.textContent = `레벨 ${level}로 이동했습니다. 시작 버튼을 눌러 도전하세요.`;
+  setupTarget();
+  draw();
+}
+
+function resetAllProgress(){
+  clearInterval(timerId);
+  gameActive = false;
+  countdownActive = false;
+  drawing = false;
+  roundEnded = false;
+  points = [];
+  combo = 0;
+  level = 1;
+  bestScore = 0;
+  ranking = [0,0,0];
+  selectedTime = 5;
+  timeLeft = selectedTime;
+
+  localStorage.removeItem('circleGameLevel');
+  localStorage.removeItem('circleGameBest');
+  localStorage.removeItem('circleGameRanking');
+  localStorage.setItem('circleGameTime', '5');
+
+  if(bgmOn) toggleBGM();
+
+  bestScoreEl.textContent = '0';
+  comboEl.textContent = '0';
+  levelEl.textContent = '1';
+  scoreEl.textContent = '0';
+  timerEl.textContent = '5';
+  starsEl.textContent = '☆☆☆';
+  renderRanking();
+  applyTimeUI();
+  guideBtn.textContent = showGuide ? '기준 원 숨기기' : '기준 원 보기';
+  messageEl.textContent = '초기화했습니다. 레벨 1, 기록 0점으로 돌아갔습니다.';
+  fitCanvas();
   draw();
 }
 
@@ -587,19 +786,6 @@ function endPointer(e){
   drawing = false;
 }
 
-canvas.addEventListener('mousedown', beginPointer);
-canvas.addEventListener('mousemove', movePointer);
-window.addEventListener('mouseup', endPointer);
-canvas.addEventListener('touchstart', beginPointer, {passive:false});
-canvas.addEventListener('touchmove', movePointer, {passive:false});
-window.addEventListener('touchend', endPointer, {passive:false});
-
-startBtn.addEventListener('click', startGame);
-guideBtn.addEventListener('click', toggleGuide);
-clearBtn.addEventListener('click', clearDrawing);
-window.addEventListener('resize', fitCanvas);
-window.addEventListener('orientationchange', ()=>setTimeout(fitCanvas,250));
-
 function makeBurst(color){
   burstEl.innerHTML = '';
   const count = 18;
@@ -610,12 +796,12 @@ function makeBurst(color){
     p.style.left = '50%';
     p.style.top = '50%';
     const angle = (Math.PI * 2 * i) / count;
-    const dist = 60 + Math.random() * 70;
-    p.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
-    p.style.setProperty('--ty', `${Math.sin(angle) * dist}px`);
+    const distance = 60 + Math.random() * 70;
+    p.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
+    p.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
     burstEl.appendChild(p);
   }
-  setTimeout(()=>burstEl.innerHTML='',800);
+  setTimeout(()=> burstEl.innerHTML = '', 800);
 }
 
 function audioCtx(){
@@ -635,8 +821,10 @@ function playTone(freq, duration, type='sine', volume=0.06, when=0){
   g.gain.setValueAtTime(0.0001, now);
   g.gain.exponentialRampToValueAtTime(volume, now + 0.02);
   g.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-  o.connect(g); g.connect(a.destination);
-  o.start(now); o.stop(now + duration + 0.03);
+  o.connect(g);
+  g.connect(a.destination);
+  o.start(now);
+  o.stop(now + duration + 0.03);
 }
 
 function playSuccessJingle(levelup){
@@ -650,67 +838,63 @@ function playFailSound(){
   playTone(180, .22, 'sawtooth', .03, .11);
 }
 
+function updateBgmButton(){
+  bgmBtn.textContent = bgmOn ? '🔊 BGM ON' : '🔈 BGM OFF';
+}
+
+function toggleBGM(){
+  const a = audioCtx();
+  if(!bgmOn){
+    bgmOsc = a.createOscillator();
+    bgmGain = a.createGain();
+    bgmOsc.type = 'sine';
+    bgmOsc.frequency.value = 220;
+    bgmGain.gain.value = 0.018;
+    bgmOsc.connect(bgmGain);
+    bgmGain.connect(a.destination);
+    bgmOsc.start();
+    bgmOn = true;
+  } else {
+    if(bgmOsc){
+      try { bgmOsc.stop(); } catch(e) {}
+      bgmOsc.disconnect();
+      bgmOsc = null;
+    }
+    if(bgmGain){
+      bgmGain.disconnect();
+      bgmGain = null;
+    }
+    bgmOn = false;
+  }
+  localStorage.setItem('circleGameBgmOn', bgmOn ? '1' : '0');
+  updateBgmButton();
+}
+
+canvas.addEventListener('mousedown', beginPointer);
+canvas.addEventListener('mousemove', movePointer);
+window.addEventListener('mouseup', endPointer);
+canvas.addEventListener('touchstart', beginPointer, {passive:false});
+canvas.addEventListener('touchmove', movePointer, {passive:false});
+window.addEventListener('touchend', endPointer, {passive:false});
+
+startBtn.addEventListener('click', startGame);
+guideBtn.addEventListener('click', toggleGuide);
+clearBtn.addEventListener('click', clearDrawing);
+retryBtn.addEventListener('click', startGame);
+nextBtn.addEventListener('click', nextLevel);
+bgmBtn.addEventListener('click', toggleBGM);
+resetBtn.addEventListener('click', resetAllProgress);
+time5Btn.addEventListener('click', ()=> setTimeMode(5));
+time10Btn.addEventListener('click', ()=> setTimeMode(10));
+window.addEventListener('resize', fitCanvas);
+window.addEventListener('orientationchange', ()=> setTimeout(fitCanvas, 250));
+
 fitCanvas();
 fullResetInfo();
 draw();
-messageEl.textContent = '시작 버튼을 누르면 3초 뒤 10초 제한 라운드가 시작됩니다.';
-// ===== 추가 기능: 다시하기 / 다음레벨 / 배경음 =====
-
-let bgmOn = false;
-let bgmOsc = null;
-let bgmGain = null;
-
-function toggleBGM(){
-  const ctxA = audioCtx();
-  if(!bgmOn){
-    bgmOsc = ctxA.createOscillator();
-    bgmGain = ctxA.createGain();
-    bgmOsc.type = 'sine';
-    bgmOsc.frequency.value = 220;
-    bgmGain.gain.value = 0.02;
-    bgmOsc.connect(bgmGain);
-    bgmGain.connect(ctxA.destination);
-    bgmOsc.start();
-    bgmOn = true;
-    bgmBtn.textContent = '🔊 BGM ON';
-  } else {
-    if(bgmOsc){ bgmOsc.stop(); }
-    bgmOn = false;
-    bgmBtn.textContent = '🔈 BGM OFF';
-  }
-}
-
-// 버튼 추가
-const extraDiv = document.createElement('div');
-extraDiv.style.display='grid';
-extraDiv.style.gridTemplateColumns='1fr 1fr 1fr';
-extraDiv.style.gap='6px';
-extraDiv.style.marginTop='6px';
-
-document.querySelector('.controls').after(extraDiv);
-
-const retryBtn = document.createElement('button');
-retryBtn.textContent = '다시 하기';
-retryBtn.onclick = ()=>{ startGame(); };
-
-const nextBtn = document.createElement('button');
-nextBtn.textContent = '다음 레벨';
-nextBtn.onclick = ()=>{
-  level++;
-  localStorage.setItem('circleGameLevel', level);
-  levelEl.textContent = level;
-  startGame();
-};
-
-const bgmBtn = document.createElement('button');
-bgmBtn.textContent = '🔈 BGM OFF';
-bgmBtn.onclick = toggleBGM;
-
-extraDiv.appendChild(retryBtn);
-extraDiv.appendChild(nextBtn);
-extraDiv.appendChild(bgmBtn);
-
+messageEl.textContent = `시작 버튼을 누르면 카운트다운 뒤 ${selectedTime}초 제한 라운드가 시작됩니다.`;
+if(bgmOn) toggleBGM(), toggleBGM(); // ensure clean state then reapply below
+if(localStorage.getItem('circleGameBgmOn') === '1') toggleBGM();
 </script>
 </body>
 </html>
-
