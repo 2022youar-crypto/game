@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+<title>원 그리기 게임 PRO</title>
+<style>
+:root{
+  --bg1:#eef5ff;
+  --bg2:#fff7fb;
+  --card:#ffffff;
+  --text:#24324a;
+  --sub:#6f7c95;
+  --blue:#6c9cff;
+  --blue-deep:#4f7eff;
+  --pink:#ff8cc6;
+  --pink-deep:#ff69b4;
+  --yellow:#ffd54a;
+  --mint:#7be0c3;
+  --danger:#ff7b7b;
+  --line:#e4ebf6;
+  --shadow:0 10px 30px rgba(92,126,255,.15);
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  margin:0;
+  font-family:"Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+  color:var(--text);
+  background:linear-gradient(180deg,var(--bg1),var(--bg2));
+  overflow:hidden;
+}
+.app{
+  max-width:560px;
+  height:100dvh;
+  margin:0 auto;
+  padding:calc(8px + var(--safe-top)) 8px calc(8px + var(--safe-bottom));
+  display:grid;
+  grid-template-rows:auto auto auto 1fr auto auto;
+  gap:8px;
+}
+.header{
+  background:linear-gradient(135deg,var(--blue-deep),var(--pink));
+  color:white;
+  border-radius:22px;
+  padding:12px 14px;
+  box-shadow:var(--shadow);
+  position:relative;
+  overflow:hidden;
+}
+.header:before,.header:after{
+  content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.16);
+}
+.header:before{width:120px;height:120px;right:-30px;top:-40px;}
+.header:after{width:80px;height:80px;left:-20px;bottom:-30px;}
+.title-row{display:flex;justify-content:space-between;align-items:center;gap:10px;position:relative;z-index:1;}
+.title{font-size:22px;font-weight:900;letter-spacing:-.3px;}
+.badge{
+  background:rgba(255,255,255,.2);padding:6px 10px;border-radius:999px;font-size:12px;font-weight:800;
+}
+.sub{
+  margin-top:6px;font-size:12px;line-height:1.4;opacity:.95;position:relative;z-index:1;
+}
+.stats{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:6px;
+}
+.stat{
+  background:var(--card);border:1px solid var(--line);border-radius:16px;padding:8px 6px;text-align:center;box-shadow:0 6px 16px rgba(30,41,59,.05);
+}
+.stat .label{font-size:11px;color:var(--sub);margin-bottom:4px;white-space:nowrap;}
+.stat .value{font-size:18px;font-weight:900;line-height:1;}
+.message{
+  min-height:48px;display:flex;align-items:center;justify-content:center;text-align:center;
+  background:linear-gradient(180deg,#fff,#f9fbff);border:1px solid var(--line);border-radius:16px;padding:10px 12px;
+  font-size:13px;line-height:1.4;color:#345;
+}
+.canvas-wrap{
+  position:relative;min-height:0;border-radius:24px;overflow:hidden;box-shadow:0 10px 24px rgba(30,41,59,.08);
+}
+canvas{
+  display:block;width:100%;height:100%;
+  background:
+    radial-gradient(circle at center, rgba(108,156,255,.05) 0 2px, transparent 2px 100%),
+    linear-gradient(180deg,#ffffff 0%, #f8fbff 100%);
+  touch-action:none;
+}
+.overlay-center{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;
+}
+.countdown{
+  font-size:min(26vw,96px);font-weight:1000;color:var(--pink-deep);text-shadow:0 6px 18px rgba(255,105,180,.25);
+  transform:scale(.8);opacity:0;transition:.18s ease;
+}
+.countdown.show{transform:scale(1);opacity:1;}
+.burst{
+  position:absolute;inset:0;pointer-events:none;overflow:hidden;
+}
+.particle{
+  position:absolute;width:10px;height:10px;border-radius:50%;opacity:.9;animation:pop .7s ease-out forwards;
+}
+@keyframes pop{
+  0%{transform:translate(0,0) scale(.6);opacity:0;}
+  20%{opacity:1;}
+  100%{transform:translate(var(--tx),var(--ty)) scale(1.2);opacity:0;}
+}
+.legend{
+  position:absolute;top:8px;left:8px;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none;z-index:2;
+}
+.chip{
+  display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.88);border:1px solid rgba(228,235,246,.95);border-radius:999px;padding:4px 8px;font-size:11px;color:var(--sub);backdrop-filter:blur(4px);
+}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;}
+.dot.target{background:#bdd1ff;border:1px solid #86aafc;}
+.dot.trace{background:var(--blue-deep);}
+.dot.center{background:#ffbe33;}
+.controls{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:6px;}
+button{
+  min-height:50px;border:none;border-radius:16px;font-size:14px;font-weight:900;cursor:pointer;
+  box-shadow:0 6px 16px rgba(30,41,59,.08);
+}
+button:active{transform:translateY(1px)}
+.btn-start{background:linear-gradient(135deg,var(--blue-deep),var(--blue));color:#fff;}
+.btn-guide{background:#eef4ff;color:#3458c8;}
+.btn-clear{background:#fff0f0;color:#c54848;}
+.ranking{
+  background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:18px;padding:10px 12px;
+}
+.ranking-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.ranking-title{font-size:13px;font-weight:900;}
+.ranking small{color:var(--sub);}
+.rank-list{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+.rank-item{background:#f9fbff;border:1px solid #edf2fb;border-radius:12px;padding:7px 8px;text-align:center;font-size:12px;}
+.rank-item b{display:block;font-size:16px;margin-top:2px;}
+.stars{letter-spacing:1px;color:#f5b700;font-size:17px;min-height:20px;}
+.footer{text-align:center;font-size:11px;color:var(--sub);}
+.mode-pill{font-weight:900;color:#7a4ecf;}
+.flash{
+  animation:flash .45s ease;
+}
+@keyframes flash{0%{transform:scale(1)}40%{transform:scale(1.06)}100%{transform:scale(1)}}
+@media (max-width:390px){
+  .stats{grid-template-columns:repeat(5,1fr)}
+  .stat .value{font-size:16px}
+  .controls{grid-template-columns:1fr 1fr 1fr}
+  button{font-size:13px}
+}
+@media (orientation:landscape) and (max-height:540px){
+  .app{grid-template-rows:auto auto 1fr auto auto;}
+  .sub,.message{display:none;}
+  .header{padding:10px 12px;}
+  .title{font-size:20px;}
+  .stat{padding:6px 4px;}
+  .stat .value{font-size:16px;}
+  button{min-height:44px;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="title-row">
+      <div class="title">🎯 원 그리기 게임 PRO</div>
+      <div class="badge" id="modeBadge">⏱️ 10초 모드</div>
+    </div>
+    <div class="sub">3초 카운트다운 후 시작됩니다. 원을 최대한 예쁘고 둥글게 그려서 콤보와 별을 모아 보세요!</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="label">점수</div><div class="value" id="score">0</div></div>
+    <div class="stat"><div class="label">최고</div><div class="value" id="bestScore">0</div></div>
+    <div class="stat"><div class="label">콤보</div><div class="value" id="combo">0</div></div>
+    <div class="stat"><div class="label">레벨</div><div class="value" id="level">1</div></div>
+    <div class="stat"><div class="label">남은 시간</div><div class="value" id="timer">10</div></div>
+  </div>
+
+  <div class="message" id="message">시작 버튼을 누르면 3초 카운트다운 뒤 게임이 시작됩니다.</div>
+
+  <div class="canvas-wrap" id="canvasWrap">
+    <div class="legend">
+      <span class="chip"><span class="dot target"></span>기준 원</span>
+      <span class="chip"><span class="dot trace"></span>내 선</span>
+      <span class="chip"><span class="dot center"></span>중심</span>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+    <div class="overlay-center"><div class="countdown" id="countdown"></div></div>
+    <div class="burst" id="burst"></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn-start" id="startBtn">시작</button>
+    <button class="btn-guide" id="guideBtn">기준 원 숨기기</button>
+    <button class="btn-clear" id="clearBtn">지우기</button>
+  </div>
+
+  <div class="ranking">
+    <div class="ranking-top">
+      <div>
+        <div class="ranking-title">🏆 내 랭킹</div>
+        <small>휴대폰 브라우저에 자동 저장</small>
+      </div>
+      <div class="stars" id="stars">☆☆☆</div>
+    </div>
+    <div class="rank-list">
+      <div class="rank-item">1등<b id="rank1">0</b></div>
+      <div class="rank-item">2등<b id="rank2">0</b></div>
+      <div class="rank-item">3등<b id="rank3">0</b></div>
+    </div>
+  </div>
+
+  <div class="footer">성공 시 별·콤보·레벨 업! 실패하면 콤보가 끊깁니다.</div>
+</div>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const canvasWrap = document.getElementById('canvasWrap');
+const countdownEl = document.getElementById('countdown');
+const burstEl = document.getElementById('burst');
+const scoreEl = document.getElementById('score');
+const bestScoreEl = document.getElementById('bestScore');
+const comboEl = document.getElementById('combo');
+const levelEl = document.getElementById('level');
+const timerEl = document.getElementById('timer');
+const messageEl = document.getElementById('message');
+const starsEl = document.getElementById('stars');
+const rank1El = document.getElementById('rank1');
+const rank2El = document.getElementById('rank2');
+const rank3El = document.getElementById('rank3');
+const startBtn = document.getElementById('startBtn');
+const guideBtn = document.getElementById('guideBtn');
+const clearBtn = document.getElementById('clearBtn');
+
+let dpr = Math.max(1, window.devicePixelRatio || 1);
+let target = {cx:0, cy:0, r:0};
+let points = [];
+let drawing = false;
+let showGuide = true;
+let gameActive = false;
+let countdownActive = false;
+let combo = 0;
+let level = Number(localStorage.getItem('circleGameLevel') || 1);
+let bestScore = Number(localStorage.getItem('circleGameBest') || 0);
+let timeLeft = 10;
+let timerId = null;
+let roundEnded = false;
+let ranking = JSON.parse(localStorage.getItem('circleGameRanking') || '[0,0,0]');
+
+bestScoreEl.textContent = bestScore;
+levelEl.textContent = level;
+renderRanking();
+
+function fitCanvas(){
+  const headerH = document.querySelector('.header').offsetHeight;
+  const statsH = document.querySelector('.stats').offsetHeight;
+  const msgH = document.querySelector('.message').offsetHeight;
+  const controlsH = document.querySelector('.controls').offsetHeight;
+  const rankingH = document.querySelector('.ranking').offsetHeight;
+  const footerH = document.querySelector('.footer').offsetHeight;
+  const totalGaps = 8 * 6;
+  const available = window.innerHeight - headerH - statsH - msgH - controlsH - rankingH - footerH - totalGaps - 20;
+  canvasWrap.style.height = Math.max(250, available) + 'px';
+
+  const rect = canvas.getBoundingClientRect();
+  dpr = Math.max(1, window.devicePixelRatio || 1);
+  canvas.width = Math.floor(rect.width * dpr);
+  canvas.height = Math.floor(rect.height * dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  setupTarget();
+  draw();
+}
+
+function setupTarget(){
+  const rect = canvas.getBoundingClientRect();
+  const minSide = Math.min(rect.width, rect.height);
+  const difficultyBoost = Math.min(26, (level - 1) * 4);
+  const base = Math.max(54, minSide * 0.24 - difficultyBoost);
+  target.cx = rect.width / 2;
+  target.cy = rect.height / 2 + 8;
+  target.r = base + (Math.random() * 10 - 5);
+}
+
+function resetOnlyDrawing(){
+  points = [];
+  roundEnded = false;
+  draw();
+}
+
+function fullResetInfo(){
+  scoreEl.textContent = '0';
+  comboEl.textContent = String(combo);
+  levelEl.textContent = String(level);
+  timerEl.textContent = String(timeLeft);
+  starsEl.textContent = '☆☆☆';
+}
+
+function draw(){
+  const rect = canvas.getBoundingClientRect();
+  ctx.clearRect(0,0,rect.width,rect.height);
+
+  if(showGuide){
+    ctx.save();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = 'rgba(108,156,255,.42)';
+    ctx.setLineDash([8,6]);
+    ctx.beginPath();
+    ctx.arc(target.cx,target.cy,target.r,0,Math.PI*2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  ctx.save();
+  ctx.fillStyle = '#ffbe33';
+  ctx.beginPath();
+  ctx.arc(target.cx,target.cy,4,0,Math.PI*2);
+  ctx.fill();
+  ctx.restore();
+
+  if(points.length > 0){
+    ctx.save();
+    ctx.strokeStyle = '#4f7eff';
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for(let i=1;i<points.length;i++) ctx.lineTo(points[i].x, points[i].y);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function posFromEvent(e){
+  const rect = canvas.getBoundingClientRect();
+  const source = e.touches ? e.touches[0] : e;
+  return {x: source.clientX - rect.left, y: source.clientY - rect.top};
+}
+
+function dist(a,b){ return Math.hypot(a.x-b.x, a.y-b.y); }
+
+function pathLength(arr){
+  let len = 0;
+  for(let i=1;i<arr.length;i++) len += dist(arr[i-1], arr[i]);
+  return len;
+}
+
+function evaluateCircle(arr){
+  if(arr.length < 18){
+    return {score:0, stars:0, text:'그림이 너무 짧아요. 더 크게 한 바퀴 그려 보세요.', success:false};
+  }
+
+  const ideal = 2 * Math.PI * target.r;
+  const len = pathLength(arr);
+  if(len < ideal * 0.55){
+    return {score:0, stars:0, text:'한 바퀴가 충분히 이어지지 않았어요.', success:false};
+  }
+
+  const radialErrors = [];
+  const angles = [];
+  for(const p of arr){
+    const dx = p.x - target.cx;
+    const dy = p.y - target.cy;
+    const r = Math.hypot(dx,dy);
+    radialErrors.push(Math.abs(r - target.r));
+    angles.push(Math.atan2(dy,dx));
+  }
+  const meanError = radialErrors.reduce((a,b)=>a+b,0) / radialErrors.length;
+
+  const bins = 36;
+  const covered = new Set();
+  for(let ang of angles){
+    if(ang < 0) ang += Math.PI*2;
+    covered.add(Math.max(0, Math.min(bins-1, Math.floor((ang/(Math.PI*2))*bins))));
+  }
+  const coverage = covered.size / bins;
+  const closure = dist(arr[0], arr[arr.length-1]);
+  const closurePenalty = Math.min(1, closure / (target.r * 0.9));
+
+  const smooths = [];
+  for(let i=2;i<arr.length;i++){
+    const a = arr[i-2], b = arr[i-1], c = arr[i];
+    const ab = Math.atan2(b.y-a.y, b.x-a.x);
+    const bc = Math.atan2(c.y-b.y, c.x-b.x);
+    let diff = Math.abs(bc - ab);
+    while(diff > Math.PI) diff = Math.abs(diff - Math.PI*2);
+    smooths.push(diff);
+  }
+  const smoothness = smooths.length ? smooths.reduce((a,b)=>a+b,0) / smooths.length : 1.4;
+
+  const radialScore = Math.max(0, 1 - meanError / (target.r * 0.42));
+  const coverageScore = Math.max(0, Math.min(1, coverage));
+  const closureScore = Math.max(0, 1 - closurePenalty);
+  const smoothScore = Math.max(0, 1 - smoothness / 1.4);
+  const levelPenalty = Math.min(0.12, (level - 1) * 0.01);
+
+  let score = Math.round(Math.max(0, Math.min(100, ((
+    radialScore * 0.46 + coverageScore * 0.28 + closureScore * 0.16 + smoothScore * 0.10
+  ) - levelPenalty) * 100)));
+
+  let stars = 0;
+  if(score >= 90) stars = 3;
+  else if(score >= 75) stars = 2;
+  else if(score >= 60) stars = 1;
+
+  const success = score >= 70;
+  let text = '다시 도전해 보세요!';
+  if(score >= 95) text = '완벽에 가까워요! 정말 예쁜 원이에요!';
+  else if(score >= 85) text = '아주 잘했어요! 매끈하고 안정적이에요.';
+  else if(score >= 70) text = '좋아요! 콤보가 이어집니다.';
+  else if(coverage < 0.7) text = '한 바퀴가 덜 돌아갔어요. 원 전체를 이어 보세요.';
+  else if(meanError > 18) text = '기준 원과 거리가 들쑥날쑥해요. 천천히 따라가 보세요.';
+  else text = '시작점과 끝점을 더 가깝게 붙이면 점수가 올라가요.';
+
+  return {score, stars, text, success};
+}
+
+function setStars(n){
+  starsEl.textContent = '★'.repeat(n) + '☆'.repeat(3-n);
+  if(n > 0){
+    starsEl.classList.remove('flash');
+    void starsEl.offsetWidth;
+    starsEl.classList.add('flash');
+  }
+}
+
+function updateRanking(score){
+  ranking.push(score);
+  ranking = ranking.sort((a,b)=>b-a).slice(0,3);
+  localStorage.setItem('circleGameRanking', JSON.stringify(ranking));
+  renderRanking();
+}
+
+function renderRanking(){
+  rank1El.textContent = ranking[0] || 0;
+  rank2El.textContent = ranking[1] || 0;
+  rank3El.textContent = ranking[2] || 0;
+}
+
+function levelUpIfNeeded(){
+  if(combo >= 3){
+    combo = 0;
+    level += 1;
+    localStorage.setItem('circleGameLevel', String(level));
+    levelEl.textContent = String(level);
+    messageEl.textContent = '🎉 레벨 업! 다음 원은 더 까다로워집니다.';
+    makeBurst('#ffd54a');
+    playSuccessJingle(true);
+    setupTarget();
+    draw();
+  }
+}
+
+function finishRound(byTimeout = false){
+  if(roundEnded) return;
+  roundEnded = true;
+  gameActive = false;
+  clearInterval(timerId);
+
+  const result = evaluateCircle(points);
+  scoreEl.textContent = String(result.score);
+  setStars(result.stars);
+  messageEl.textContent = byTimeout && points.length === 0 ? '시간이 끝났어요! 다시 도전해 보세요.' : result.text;
+
+  if(result.score > bestScore){
+    bestScore = result.score;
+    localStorage.setItem('circleGameBest', String(bestScore));
+    bestScoreEl.textContent = String(bestScore);
+  }
+  updateRanking(result.score);
+
+  if(result.success){
+    combo += 1;
+    makeBurst('#7be0c3');
+    playSuccessJingle(false);
+  } else {
+    combo = 0;
+    playFailSound();
+  }
+  comboEl.textContent = String(combo);
+  levelUpIfNeeded();
+}
+
+function startTimer(){
+  clearInterval(timerId);
+  timeLeft = 10;
+  timerEl.textContent = String(timeLeft);
+  timerId = setInterval(()=>{
+    timeLeft -= 1;
+    timerEl.textContent = String(timeLeft);
+    if(timeLeft <= 0){
+      clearInterval(timerId);
+      finishRound(true);
+    }
+  },1000);
+}
+
+function showCountdownSequence(){
+  countdownActive = true;
+  const seq = ['3','2','1','GO!'];
+  let i = 0;
+  countdownEl.textContent = seq[0];
+  countdownEl.classList.add('show');
+  const id = setInterval(()=>{
+    i += 1;
+    if(i >= seq.length){
+      clearInterval(id);
+      countdownEl.classList.remove('show');
+      countdownEl.textContent = '';
+      countdownActive = false;
+      beginPlayableRound();
+      return;
+    }
+    countdownEl.textContent = seq[i];
+    countdownEl.classList.remove('show');
+    void countdownEl.offsetWidth;
+    countdownEl.classList.add('show');
+  },850);
+}
+
+function beginPlayableRound(){
+  resetOnlyDrawing();
+  setupTarget();
+  draw();
+  gameActive = true;
+  messageEl.textContent = '지금부터 10초! 원을 한 바퀴 부드럽게 그려 보세요.';
+  startTimer();
+}
+
+function startGame(){
+  if(countdownActive) return;
+  clearInterval(timerId);
+  gameActive = false;
+  roundEnded = false;
+  points = [];
+  draw();
+  fullResetInfo();
+  showCountdownSequence();
+}
+
+function clearDrawing(){
+  points = [];
+  draw();
+  if(gameActive) messageEl.textContent = '그림을 지웠어요. 남은 시간 안에 다시 그려 보세요.';
+  else messageEl.textContent = '그림을 지웠어요. 다시 시작해 보세요.';
+}
+
+function toggleGuide(){
+  showGuide = !showGuide;
+  guideBtn.textContent = showGuide ? '기준 원 숨기기' : '기준 원 보기';
+  draw();
+}
+
+function beginPointer(e){
+  if(!gameActive || countdownActive || roundEnded) return;
+  e.preventDefault();
+  drawing = true;
+  points = [posFromEvent(e)];
+  draw();
+}
+
+function movePointer(e){
+  if(!drawing || !gameActive) return;
+  e.preventDefault();
+  const p = posFromEvent(e);
+  const last = points[points.length - 1];
+  if(!last || dist(last, p) > 1.4){
+    points.push(p);
+    draw();
+  }
+}
+
+function endPointer(e){
+  if(!drawing) return;
+  e.preventDefault();
+  drawing = false;
+}
+
+canvas.addEventListener('mousedown', beginPointer);
+canvas.addEventListener('mousemove', movePointer);
+window.addEventListener('mouseup', endPointer);
+canvas.addEventListener('touchstart', beginPointer, {passive:false});
+canvas.addEventListener('touchmove', movePointer, {passive:false});
+window.addEventListener('touchend', endPointer, {passive:false});
+
+startBtn.addEventListener('click', startGame);
+guideBtn.addEventListener('click', toggleGuide);
+clearBtn.addEventListener('click', clearDrawing);
+window.addEventListener('resize', fitCanvas);
+window.addEventListener('orientationchange', ()=>setTimeout(fitCanvas,250));
+
+function makeBurst(color){
+  burstEl.innerHTML = '';
+  const count = 18;
+  for(let i=0;i<count;i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.background = i % 3 === 0 ? color : (i % 3 === 1 ? '#ffd54a' : '#ff8cc6');
+    p.style.left = '50%';
+    p.style.top = '50%';
+    const angle = (Math.PI * 2 * i) / count;
+    const dist = 60 + Math.random() * 70;
+    p.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
+    p.style.setProperty('--ty', `${Math.sin(angle) * dist}px`);
+    burstEl.appendChild(p);
+  }
+  setTimeout(()=>burstEl.innerHTML='',800);
+}
+
+function audioCtx(){
+  if(!window.__circleAudioCtx){
+    window.__circleAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  return window.__circleAudioCtx;
+}
+
+function playTone(freq, duration, type='sine', volume=0.06, when=0){
+  const a = audioCtx();
+  const now = a.currentTime + when;
+  const o = a.createOscillator();
+  const g = a.createGain();
+  o.type = type;
+  o.frequency.setValueAtTime(freq, now);
+  g.gain.setValueAtTime(0.0001, now);
+  g.gain.exponentialRampToValueAtTime(volume, now + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+  o.connect(g); g.connect(a.destination);
+  o.start(now); o.stop(now + duration + 0.03);
+}
+
+function playSuccessJingle(levelup){
+  playTone(660, .14, 'triangle', .05, 0);
+  playTone(880, .16, 'triangle', .05, .10);
+  if(levelup) playTone(1175, .22, 'triangle', .06, .22);
+}
+
+function playFailSound(){
+  playTone(250, .18, 'sawtooth', .04, 0);
+  playTone(180, .22, 'sawtooth', .03, .11);
+}
+
+fitCanvas();
+fullResetInfo();
+draw();
+messageEl.textContent = '시작 버튼을 누르면 3초 뒤 10초 제한 라운드가 시작됩니다.';
+// ===== 추가 기능: 다시하기 / 다음레벨 / 배경음 =====
+
+let bgmOn = false;
+let bgmOsc = null;
+let bgmGain = null;
+
+function toggleBGM(){
+  const ctxA = audioCtx();
+  if(!bgmOn){
+    bgmOsc = ctxA.createOscillator();
+    bgmGain = ctxA.createGain();
+    bgmOsc.type = 'sine';
+    bgmOsc.frequency.value = 220;
+    bgmGain.gain.value = 0.02;
+    bgmOsc.connect(bgmGain);
+    bgmGain.connect(ctxA.destination);
+    bgmOsc.start();
+    bgmOn = true;
+    bgmBtn.textContent = '🔊 BGM ON';
+  } else {
+    if(bgmOsc){ bgmOsc.stop(); }
+    bgmOn = false;
+    bgmBtn.textContent = '🔈 BGM OFF';
+  }
+}
+
+// 버튼 추가
+const extraDiv = document.createElement('div');
+extraDiv.style.display='grid';
+extraDiv.style.gridTemplateColumns='1fr 1fr 1fr';
+extraDiv.style.gap='6px';
+extraDiv.style.marginTop='6px';
+
+document.querySelector('.controls').after(extraDiv);
+
+const retryBtn = document.createElement('button');
+retryBtn.textContent = '다시 하기';
+retryBtn.onclick = ()=>{ startGame(); };
+
+const nextBtn = document.createElement('button');
+nextBtn.textContent = '다음 레벨';
+nextBtn.onclick = ()=>{
+  level++;
+  localStorage.setItem('circleGameLevel', level);
+  levelEl.textContent = level;
+  startGame();
+};
+
+const bgmBtn = document.createElement('button');
+bgmBtn.textContent = '🔈 BGM OFF';
+bgmBtn.onclick = toggleBGM;
+
+extraDiv.appendChild(retryBtn);
+extraDiv.appendChild(nextBtn);
+extraDiv.appendChild(bgmBtn);
+
+</script>
+</body>
+</html>
